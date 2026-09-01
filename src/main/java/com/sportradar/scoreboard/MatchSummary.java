@@ -3,7 +3,7 @@ package com.sportradar.scoreboard;
 import java.time.Instant;
 
 public record MatchSummary(MatchId id, String homeTeam, String awayTeam, int homeGoals, int awayGoals,
-                            Instant startTime) {
+                            Instant startTime, Instant finishTime) {
 
     static MatchSummary from(Match match) {
         return new MatchSummary(
@@ -12,7 +12,8 @@ public record MatchSummary(MatchId id, String homeTeam, String awayTeam, int hom
                 match.awayTeam(),
                 match.score().homeGoals(),
                 match.score().awayGoals(),
-                match.startTime()
+                match.startTime(),
+                match.finishTime()
         );
     }
 }

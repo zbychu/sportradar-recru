@@ -11,6 +11,9 @@ public final class Scoreboard {
                     .reversed()
                     .thenComparing(Match::startTime, Comparator.reverseOrder());
 
+    private static final Comparator<Match> FINISHED_ORDER =
+            Comparator.comparing(Match::finishTime, Comparator.reverseOrder());
+
     private final MatchRepository repository;
     private final Clock clock;
 
@@ -62,6 +65,14 @@ public final class Scoreboard {
         return repository.findAll().stream()
                 .filter(match -> match.status() == MatchStatus.IN_PROGRESS)
                 .sorted(SUMMARY_ORDER)
+                .map(MatchSummary::from)
+                .toList();
+    }
+
+    public List<MatchSummary> getFinishedMatches() {
+        return repository.findAll().stream()
+                .filter(match -> match.status() == MatchStatus.FINISHED)
+                .sorted(FINISHED_ORDER)
                 .map(MatchSummary::from)
                 .toList();
     }
