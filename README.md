@@ -87,6 +87,21 @@ order they came up:
   `MatchSummary` is a read-only projection (`record`) returned to callers — internal `Match`
   objects are never handed out, so nothing outside the package can mutate scoreboard state except
   through `Scoreboard`'s methods.
+- **Tell, don't ask — `Match` builds its own summary and exposes only `id()`.** An earlier version
+  had `Match` expose `homeTeam()`/`awayTeam()`/`score()`/`status()`/`startTime()`/`finishTime()`
+  getters, with `Scoreboard` and a `MatchSummary.from(Match)` static method reaching in to pull
+  those apart — classic feature envy. That was replaced with `Match.toSummary()` (builds its own
+  `MatchSummary` from its private fields), `Match.isInProgress()`/`isFinished()` (replacing
+  `status() == MatchStatus.X` checks in `Scoreboard`), and `Match.involves(team)` (replacing manual
+  `homeTeam().equals(x) || awayTeam().equals(x)` in the duplicate-match check). The summary and
+  finished-history comparators (`Match.IN_PROGRESS_ORDER`, `Match.FINISHED_ORDER`) live on `Match`
+  itself rather than in `Scoreboard`, since ordering live matches is a match/domain concept and the
+  comparators need per-instance data that no longer has public getters. The same principle applies
+  one level down: `Score.hasDecreasedFrom(previous)` replaced `Match` manually comparing
+  `newScore.homeGoals() < score.homeGoals()` — deciding whether a score decreased is Score's own
+  job, not something another class should compute by picking two `Score`s apart. `MatchSummary`
+  itself carries a `Score` rather than flattened `homeGoals`/`awayGoals` ints, so there's a single
+  representation of "a score" in the codebase, not two that could drift.
 - **One package, not a `domain`/`application`/`infrastructure` split.** The library is ~13 small
   classes. A layered package structure is the right call once a codebase has real breadth; here it
   would just be ceremony — ADRs worth of ceremony to navigate for a class count you can read in one

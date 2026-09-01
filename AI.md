@@ -25,8 +25,21 @@ the test suite confirmed the intended behaviour.
    the extra feature → docs). For every step: write a failing test, run `mvn test` and read the
    compiler/test failure to confirm it fails for the right reason, implement the minimum to make it
    pass, re-run to confirm green, commit.
-4. **Documentation.** README.md and this file were written last, once the implementation and its
-   trade-offs were settled, so they describe what was actually built rather than what was intended.
+4. **Documentation.** README.md and this file were written first-pass once the initial
+   implementation and its trade-offs were settled.
+5. **Human code review.** After opening the repo in IntelliJ, the user flagged a real
+   encapsulation problem: `Match` exposed getters for every field, and `MatchSummary.from(Match)`
+   (plus parts of `Scoreboard`) reached in and picked them apart — feature envy rather than "tell,
+   don't ask". The user also asked, before agreeing to the fix, whether the same problem existed on
+   `Score` (it did — `Match.updateScore` was manually comparing `homeGoals()`/`awayGoals()`) and
+   whether a `ScoreSummary` type was warranted for it (AI's answer: no, that would duplicate `Score`
+   itself — the fix was a `Score.hasDecreasedFrom(previous)` method, not a new type). AI then
+   implemented the full closure test-first: `Score.hasDecreasedFrom`, `Match.toSummary()` /
+   `isInProgress()` / `isFinished()` / `involves(team)`, the ordering comparators moved onto `Match`
+   as static fields, and `MatchSummary` changed to carry a `Score` instead of flattened ints — each
+   as its own red→green→commit cycle, with the full suite re-run green after every step. This is
+   real, valuable review feedback that changed the shipped design, which is why it's recorded here
+   rather than silently folded into the "first pass" story above.
 
 ## Prompt history (condensed)
 
