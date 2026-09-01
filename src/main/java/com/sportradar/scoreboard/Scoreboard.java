@@ -24,21 +24,38 @@ public final class Scoreboard {
     }
 
     public MatchId startMatch(String homeTeam, String awayTeam) {
+        requireNeitherTeamIsPlaying(homeTeam, awayTeam);
         Match match = Match.start(homeTeam, awayTeam, clock.instant());
         repository.save(match);
         return match.id();
     }
 
     public void updateScore(MatchId id, int homeGoals, int awayGoals) {
-        Match match = repository.findById(id).orElseThrow();
+        Match match = findMatchOrThrow(id);
         match.updateScore(Score.of(homeGoals, awayGoals));
         repository.save(match);
     }
 
     public void finishMatch(MatchId id) {
-        Match match = repository.findById(id).orElseThrow();
+        Match match = findMatchOrThrow(id);
         match.finish(clock.instant());
         repository.save(match);
+    }
+
+    private void requireNeitherTeamIsPlaying(String homeTeam, String awayTeam) {
+        boolean alreadyPlaying = repository.findAll().stream()
+                .filter(match -> match.status() == MatchStatus.IN_PROGRESS)
+                .anyMatch(match -> match.homeTeam().equals(homeTeam) || match.awayTeam().equals(homeTeam)
+                        || match.homeTeam().equals(awayTeam) || match.awayTeam().equals(awayTeam));
+        if (alreadyPlaying) {
+            throw new DuplicateMatchException(
+                    "A match involving " + homeTeam + " or " + awayTeam + " is already in progress");
+        }
+    }
+
+    private Match findMatchOrThrow(MatchId id) {
+        return repository.findById(id)
+                .orElseThrow(() -> new MatchNotFoundException("No match found with id " + id));
     }
 
     public List<MatchSummary> getSummary() {
