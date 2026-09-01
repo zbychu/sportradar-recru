@@ -44,7 +44,8 @@ the test suite confirmed the intended behaviour.
 ## Prompt history (condensed)
 
 The exercise brief (verbatim, in English) was pasted first. What follows is the condensed sequence
-of decisions made in conversation, in order:
+of decisions made in conversation, in order. The full, less-condensed transcript (in Polish, the
+language the session was conducted in) is in [`prompts.md`](prompts.md).
 
 1. *"Should this be done with plan mode or OpenSpec, given OpenSpec seems more token-efficient?
    You decide and advise me."* → AI recommended native plan mode, reasoning that OpenSpec's
@@ -80,6 +81,7 @@ of decisions made in conversation, in order:
 - `git log` is itself an artifact of the process: one commit per red-green TDD cycle, in the exact
   order the plan specified, ending with a distinct commit for the chosen extra feature
   (`Add finished matches history feature`).
+- [`prompts.md`](prompts.md) is the full session transcript this summary was condensed from.
 
 <details>
 <summary>Full approved plan (as written before implementation started)</summary>
