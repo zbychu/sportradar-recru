@@ -38,7 +38,7 @@ public final class Match {
 
     public void updateScore(Score newScore) {
         requireInProgress();
-        if (newScore.homeGoals() < score.homeGoals() || newScore.awayGoals() < score.awayGoals()) {
+        if (newScore.hasDecreasedFrom(score)) {
             throw new InvalidScoreException("Score cannot decrease: " + score + " -> " + newScore);
         }
         this.score = newScore;

@@ -60,6 +60,26 @@ class ScoreTest {
     }
 
     @Test
+    void should_report_no_decrease_when_goals_increase_or_stay_the_same() {
+        // given
+        Score previous = Score.of(2, 2);
+
+        // when / then
+        assertThat(Score.of(3, 2).hasDecreasedFrom(previous)).isFalse();
+        assertThat(Score.of(2, 2).hasDecreasedFrom(previous)).isFalse();
+    }
+
+    @Test
+    void should_report_a_decrease_when_either_side_loses_goals() {
+        // given
+        Score previous = Score.of(2, 2);
+
+        // when / then
+        assertThat(Score.of(1, 2).hasDecreasedFrom(previous)).isTrue();
+        assertThat(Score.of(2, 1).hasDecreasedFrom(previous)).isTrue();
+    }
+
+    @Test
     void should_consider_scores_with_same_goals_equal() {
         // given
         Score first = Score.of(2, 3);

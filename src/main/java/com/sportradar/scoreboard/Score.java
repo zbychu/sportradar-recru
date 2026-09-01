@@ -38,6 +38,10 @@ public final class Score {
         return homeGoals + awayGoals;
     }
 
+    public boolean hasDecreasedFrom(Score previous) {
+        return homeGoals < previous.homeGoals || awayGoals < previous.awayGoals;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
