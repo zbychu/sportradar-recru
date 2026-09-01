@@ -28,11 +28,21 @@ class MatchTest {
         Match match = Match.start("Mexico", "Canada", now);
 
         // then
-        assertThat(match.status()).isEqualTo(MatchStatus.IN_PROGRESS);
-        assertThat(match.score()).isEqualTo(Score.initial());
-        assertThat(match.homeTeam()).isEqualTo("Mexico");
-        assertThat(match.awayTeam()).isEqualTo("Canada");
-        assertThat(match.startTime()).isEqualTo(now);
+        assertThat(match.isInProgress()).isTrue();
+        assertThat(match.isFinished()).isFalse();
+        assertThat(match.toSummary())
+                .isEqualTo(new MatchSummary(match.id(), "Mexico", "Canada", Score.initial(), now, null));
+    }
+
+    @Test
+    void should_report_which_teams_a_match_involves() {
+        // given
+        Match match = Match.start("Mexico", "Canada", now);
+
+        // when / then
+        assertThat(match.involves("Mexico")).isTrue();
+        assertThat(match.involves("Canada")).isTrue();
+        assertThat(match.involves("Brazil")).isFalse();
     }
 
     @Test
@@ -44,7 +54,7 @@ class MatchTest {
         match.updateScore(Score.of(0, 5));
 
         // then
-        assertThat(match.score()).isEqualTo(Score.of(0, 5));
+        assertThat(match.toSummary().score()).isEqualTo(Score.of(0, 5));
     }
 
     @Test
@@ -80,8 +90,9 @@ class MatchTest {
         match.finish(finishTime);
 
         // then
-        assertThat(match.status()).isEqualTo(MatchStatus.FINISHED);
-        assertThat(match.finishTime()).isEqualTo(finishTime);
+        assertThat(match.isFinished()).isTrue();
+        assertThat(match.isInProgress()).isFalse();
+        assertThat(match.toSummary().finishTime()).isEqualTo(finishTime);
     }
 
     @Test

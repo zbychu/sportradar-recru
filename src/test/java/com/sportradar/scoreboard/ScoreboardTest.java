@@ -28,8 +28,8 @@ class ScoreboardTest {
 
         // then
         assertThat(scoreboard.getSummary())
-                .extracting(MatchSummary::homeTeam, MatchSummary::awayTeam, MatchSummary::homeGoals, MatchSummary::awayGoals)
-                .containsExactly(tuple("Mexico", "Canada", 0, 0));
+                .extracting(MatchSummary::homeTeam, MatchSummary::awayTeam, MatchSummary::score)
+                .containsExactly(tuple("Mexico", "Canada", Score.initial()));
     }
 
     @Test
@@ -42,8 +42,8 @@ class ScoreboardTest {
 
         // then
         assertThat(scoreboard.getSummary())
-                .extracting(MatchSummary::homeGoals, MatchSummary::awayGoals)
-                .containsExactly(tuple(0, 5));
+                .extracting(MatchSummary::score)
+                .containsExactly(Score.of(0, 5));
     }
 
     @Test

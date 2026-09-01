@@ -1,18 +1,9 @@
 package com.sportradar.scoreboard;
 
 import java.time.Clock;
-import java.util.Comparator;
 import java.util.List;
 
 public final class Scoreboard {
-
-    private static final Comparator<Match> SUMMARY_ORDER =
-            Comparator.comparingInt((Match match) -> match.score().total())
-                    .reversed()
-                    .thenComparing(Match::startTime, Comparator.reverseOrder());
-
-    private static final Comparator<Match> FINISHED_ORDER =
-            Comparator.comparing(Match::finishTime, Comparator.reverseOrder());
 
     private final MatchRepository repository;
     private final Clock clock;
@@ -47,9 +38,8 @@ public final class Scoreboard {
 
     private void requireNeitherTeamIsPlaying(String homeTeam, String awayTeam) {
         boolean alreadyPlaying = repository.findAll().stream()
-                .filter(match -> match.status() == MatchStatus.IN_PROGRESS)
-                .anyMatch(match -> match.homeTeam().equals(homeTeam) || match.awayTeam().equals(homeTeam)
-                        || match.homeTeam().equals(awayTeam) || match.awayTeam().equals(awayTeam));
+                .filter(Match::isInProgress)
+                .anyMatch(match -> match.involves(homeTeam) || match.involves(awayTeam));
         if (alreadyPlaying) {
             throw new DuplicateMatchException(
                     "A match involving " + homeTeam + " or " + awayTeam + " is already in progress");
@@ -63,17 +53,17 @@ public final class Scoreboard {
 
     public List<MatchSummary> getSummary() {
         return repository.findAll().stream()
-                .filter(match -> match.status() == MatchStatus.IN_PROGRESS)
-                .sorted(SUMMARY_ORDER)
-                .map(MatchSummary::from)
+                .filter(Match::isInProgress)
+                .sorted(Match.IN_PROGRESS_ORDER)
+                .map(Match::toSummary)
                 .toList();
     }
 
     public List<MatchSummary> getFinishedMatches() {
         return repository.findAll().stream()
-                .filter(match -> match.status() == MatchStatus.FINISHED)
-                .sorted(FINISHED_ORDER)
-                .map(MatchSummary::from)
+                .filter(Match::isFinished)
+                .sorted(Match.FINISHED_ORDER)
+                .map(Match::toSummary)
                 .toList();
     }
 }

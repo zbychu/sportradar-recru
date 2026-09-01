@@ -1,8 +1,17 @@
 package com.sportradar.scoreboard;
 
 import java.time.Instant;
+import java.util.Comparator;
 
 public final class Match {
+
+    public static final Comparator<Match> IN_PROGRESS_ORDER =
+            Comparator.comparingInt((Match match) -> match.score.total())
+                    .reversed()
+                    .thenComparing((Match match) -> match.startTime, Comparator.reverseOrder());
+
+    public static final Comparator<Match> FINISHED_ORDER =
+            Comparator.comparing((Match match) -> match.finishTime, Comparator.reverseOrder());
 
     private final MatchId id;
     private final String homeTeam;
@@ -60,27 +69,19 @@ public final class Match {
         return id;
     }
 
-    public String homeTeam() {
-        return homeTeam;
+    public boolean isInProgress() {
+        return status == MatchStatus.IN_PROGRESS;
     }
 
-    public String awayTeam() {
-        return awayTeam;
+    public boolean isFinished() {
+        return status == MatchStatus.FINISHED;
     }
 
-    public Instant startTime() {
-        return startTime;
+    public boolean involves(String team) {
+        return homeTeam.equals(team) || awayTeam.equals(team);
     }
 
-    public Score score() {
-        return score;
-    }
-
-    public MatchStatus status() {
-        return status;
-    }
-
-    public Instant finishTime() {
-        return finishTime;
+    public MatchSummary toSummary() {
+        return new MatchSummary(id, homeTeam, awayTeam, score, startTime, finishTime);
     }
 }
